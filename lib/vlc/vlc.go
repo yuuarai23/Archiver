@@ -19,18 +19,31 @@ const chunksSize = 8
 func Encode(str string) string {
 	str = prepareText(str)
 
-	bStr := encodeBin(str)
+	chunks := splitByChunks(encodeBin(str), chunksSize)
 
-	chunks := splitByChunks(bStr, chunksSize)
+	return chunks.ToHex().ToString()
+}
 
-	fmt.Println(chunks)
+func (hcs HexChunks) ToString() string {
+	const sep = " "
 
-	// bytes to hex -> '20 30 3C'
-	chunks.ToHex()
+	switch len(hcs) {
+	case 0:
+		return ""
+	case 1:
+		return string(hcs[0])
+	}
 
-	// return hexChunksStr
+	var buf strings.Builder
 
-	return ""
+	buf.WriteString(string(hcs[0]))
+
+	for _, hc := range hcs[1:] {
+		buf.WriteString(sep)
+		buf.WriteString(string(hc))
+	}
+
+	return buf.String()
 }
 
 func (bcs BinaryChunks) ToHex() HexChunks {
@@ -46,7 +59,7 @@ func (bcs BinaryChunks) ToHex() HexChunks {
 }
 
 func (bc BinaryChunk) ToHex() HexChunk {
-	num, err := strconv.ParseInt(string(bc), 2, chunksSize)
+	num, err := strconv.ParseUint(string(bc), 2, chunksSize)
 	if err != nil {
 		panic("can't parse binary chunk: " + err.Error())
 	}
