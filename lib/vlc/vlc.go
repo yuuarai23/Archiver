@@ -14,11 +14,11 @@ func Encode(str string) string {
 }
 
 func Decode(encodedText string) string {
-	// hChunks := NewHexChunks(encodedText)
+	bString := NewHexChunks(encodedText).ToBinary().Join()
 
-	// bChunks := hChunks.ToBinary()
+	dTree := getEncodingTable().DecodingTree()
 
-	return ""
+	return exportText(dTree.Decode(bString))
 }
 
 // encodeBin encodes str into binary codes string without spaces.
@@ -85,6 +85,36 @@ func prepareText(str string) string {
 		if unicode.IsUpper(ch) {
 			buf.WriteRune('!')
 			buf.WriteRune(unicode.ToLower(ch))
+		} else {
+			buf.WriteRune(ch)
+		}
+	}
+
+	return buf.String()
+}
+
+// exportText is opposite to oreoareText, it prepares decoded text to export:
+// it changes: ! + <lower case letter> -> to upper case letter.
+// i.g.: !my name is !ted -> My name is Ted.
+func exportText(str string) string {
+	var buf strings.Builder
+
+	var isCapital bool
+
+	for _, ch := range str {
+
+		if isCapital {
+			buf.WriteRune(unicode.ToUpper(ch))
+
+			isCapital = false
+
+			continue
+		}
+
+		if ch == '!' {
+			isCapital = true
+
+			continue
 		} else {
 			buf.WriteRune(ch)
 		}

@@ -96,3 +96,34 @@ func TestEncode(t *testing.T) {
 		})
 	}
 }
+
+func TestDecode(t *testing.T) {
+	tests := []struct {
+		name        string
+		encodedText string
+		want        string
+	}{
+		{
+			name:        "test 1",
+			encodedText: "20 30 3C 18 77 4A E4 4D 28",
+			want:        "My name is Ted",
+		},
+		{
+			name:        "test 2",
+			encodedText: "20 32 00 E4 41 90 1D D2 42 F2 45 20 A0",
+			want:        "MY NaMe iS tED",
+		},
+		{
+			name:        "test 3",
+			encodedText: "20 32 00 E4 40 86 40 64 5C 84 90 B9 12 45 20 A0",
+			want:        "MY NAME IS TED",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Decode(tt.encodedText); got != tt.want {
+				t.Errorf("Decode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
